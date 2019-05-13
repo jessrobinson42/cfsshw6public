@@ -11,6 +11,7 @@ knitr::opts_chunk$set(fig.width=8, fig.height=6, fig.path='Figs/',
 ```
 
 ```{r setup, include=FALSE}
+#load libraries
 library(tidyverse)
 library(here)
 library(knitr)
@@ -42,28 +43,35 @@ kable(head(titanic))
 
 *Age + Sex + Fare Model* 
 ```{r}
+#create model 
 agesexfare_mod<- glm(Survived ~ Age + Sex + Fare, data = titanic,
                            family = binomial)
+#call summary
 summary(agesexfare_mod)
 
 ```
 
 *Class + Fare Model*
 ```{r}
+#create model
 classfare_mod<- glm(Survived ~ Pclass + Fare, data = titanic,
                            family = binomial)
+#call summary
 summary(classfare_mod)
 ```
 
 *Age + Sex + Age/Sex Interaction Model*
 ```{r}
+#create model
 agesexint_mod<- glm(Survived ~ Age + Sex + Age*Sex, data = titanic,
                            family = binomial)
+#call summary
 summary(agesexint_mod)
 ```
 
 ## 10-fold validation
 ```{r}
+#perform 10-fold cross-validation
 titanic_results <- function(splits, i) {
   titanic_model <- glm(i, data = analysis(splits))
   titanic_holdout <- assessment(splits)
@@ -89,10 +97,12 @@ Of the above models, Age + Sex + Fare has the lowest MSE, suggesting it is the b
 #3. Random Forest Model
 ------
 ```{r}
+#clean data
 titanic_clean <- titanic %>%
   drop_na() %>%
   mutate(Survived = as.factor(Survived))
 
+#random forest model 
 fulltitanic_rf <- train(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, data = titanic_clean,
                     method = "rf",
                     ntree = 500,
@@ -102,6 +112,7 @@ fulltitanic_rf
 ```
 ## Variable Importance Plots
 ```{r}
+#graph variable importance
 randomForest::varImpPlot(fulltitanic_rf$finalModel)
 ```
 
@@ -109,6 +120,7 @@ The most important variable in predicting Titanic survival, according to the abo
 
 ##Out-of-Bag Error Rate
 ```{r}
+#find OOB
 fulltitanic_rf$finalModel
 ```
 

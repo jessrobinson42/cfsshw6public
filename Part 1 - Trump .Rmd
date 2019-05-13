@@ -12,6 +12,7 @@ knitr::opts_chunk$set(fig.width=8, fig.height=6, fig.path='Figs/',
 ```
 
 ```{r setup, include=FALSE}
+#load libraries
 library(tidyverse)
 library(here)
 library(knitr)
@@ -50,6 +51,7 @@ kable(video_grid)
 
 ##Graph of Fitted Values
 ```{r}
+#graph the fitted values
 trump_data %>%
 ggplot(mapping = aes(video)) +
   geom_point(aes(y = trump)) +
@@ -63,6 +65,7 @@ ggplot(mapping = aes(video)) +
 
 ## Statistical Signficance
 ```{r}
+#call the summary stats
 kable(tidy(video_mod))
 kable(glance(video_mod))
 ```
@@ -74,6 +77,7 @@ Importance of to the video explains approximately 48% of the variation in attitu
 2. Prediction
 ------
 ```{r}
+#perform 10-fold corss-validation  
 trump_results <- function(splits, i) {
   trump_model <- glm(i, data = analysis(splits))
   trump_holdout <- assessment(splits)

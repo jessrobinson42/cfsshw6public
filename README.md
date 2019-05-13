@@ -1,4 +1,5 @@
-#Homework #6
+Homework #6
+---
 
 For Part 1 of this assignment, you can find the .Rmd file [here](Part%201%20-%20Trump%20.Rmd) and .md file [here](Part_1_-_Trump_.md).
 
