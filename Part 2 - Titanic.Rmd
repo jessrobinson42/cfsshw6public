@@ -1,0 +1,111 @@
+---
+title: "Part 2: Revisiting the Titanic"
+author: "Jess Robinson"
+date: "May 13, 2019"
+output: github_document
+---
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=6, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(knitr)
+library(readr)
+library(broom)
+library(modelr)
+library(caret)
+library(rsample)
+
+set.seed(1234)
+
+theme_set(theme_minimal())
+```
+
+# 1. Load Data
+```{r}
+library(titanic)
+titanic <- as_tibble(titanic_train) %>%
+    mutate(as.factor(Survived))
+
+kable(head(titanic)) 
+```
+
+# 2. Logistic Regression Models
+## Predictions
+
+*Age + Sex + Fare Model* 
+```{r}
+agesexfare_mod<- glm(Survived ~ Age + Sex + Fare, data = titanic,
+                           family = binomial)
+summary(agesexfare_mod)
+
+```
+
+*Class + Fare Model*
+```{r}
+classfare_mod<- glm(Survived ~ Pclass + Fare, data = titanic,
+                           family = binomial)
+summary(classfare_mod)
+```
+
+*Age + Sex + Age/Sex Interaction Model*
+```{r}
+agesexint_mod<- glm(Survived ~ Age + Sex + Age*Sex, data = titanic,
+                           family = binomial)
+summary(agesexint_mod)
+```
+
+## 10-fold validation
+```{r}
+titanic_results <- function(splits, i) {
+  titanic_model <- glm(i, data = analysis(splits))
+  titanic_holdout <- assessment(splits)
+    res <- augment(titanic_model, newdata = titanic_holdout) %>%
+    mutate(.resid = Survived - .fitted)
+    res
+}
+library(rsample)
+titanic_cv10  <- vfold_cv(data = titanic, v = 10) %>%
+  mutate("Age + Sex + Fare" = map(splits, titanic_results, Survived ~ Age + Sex + Fare),
+         "Fare + Class" = map(splits, titanic_results, Survived ~ Fare + Pclass),
+         "Age + Sex + Age/Sex Interaction" = map(splits, titanic_results, Survived ~ Age + Sex + Age*Sex))  %>% 
+  gather() %>% 
+  unnest(statistic) %>% 
+  group_by(model) %>% 
+  summarise("Mean Square Estimate (MSE)" = mean(.resid^2, na.rm = TRUE)) 
+
+kable(titanic_cv10)
+```
+
+Of the above models, Age + Sex + Fare has the lowest MSE, suggesting it is the best predictive model of the three.
+
+#3. Random Forest Model
+```{r}
+titanic_clean <- titanic %>%
+  drop_na() %>%
+  mutate(Survived = as.factor(Survived))
+
+fulltitanic_rf <- train(Survived ~ Pclass + Sex + Age + SibSp + Parch + Fare + Embarked, data = titanic_clean,
+                    method = "rf",
+                    ntree = 500,
+                    trControl = trainControl(method = "oob"))
+
+fulltitanic_rf 
+```
+## Variable Importance Plots
+```{r}
+randomForest::varImpPlot(fulltitanic_rf$finalModel)
+```
+
+The most important variable in predicting Titanic survival, according to the above chart, is sex.
+
+##Out-of-Bag Error Rate
+```{r}
+fulltitanic_rf$finalModel
+```
+
+The OOB estimate of error rate is 18.77%.

@@ -1,0 +1,97 @@
+---
+title: 'Part 1: Trump'
+author: "Jess Robinson"
+date: "May 13, 2019"
+output: github_document
+---
+
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=8, fig.height=6, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+library(knitr)
+library(readr)
+library(broom)
+library(modelr)
+library(magrittr)
+library(rsample)
+
+set.seed(1234)
+
+theme_set(theme_minimal())
+```
+
+## Import Data
+```{r}
+trump_data <- read_csv(here ("data", "trump.csv"))
+```
+
+Data comes from [the 2012 American National Election Studies survey](http://www.electionstudies.org/).
+
+# 1. Basic Linear Regression
+
+## Fitted Values
+```{r}
+#create linear regression model
+video_mod <- lm(trump ~ video, data = trump_data)
+#create data frame for fitted values
+video_grid <-  trump_data %>%
+  data_grid(video) 
+#generate predicted value
+video_grid <- augment(video_mod, newdata = video_grid)
+kable(video_grid)
+```
+
+##Graph of Fitted Values
+```{r}
+trump_data %>%
+ggplot(mapping = aes(video)) +
+  geom_point(aes(y = trump)) +
+  geom_line(aes(y = .fitted), data = video_grid, color = "light blue", size = 1) +
+  geom_point(aes(y = .fitted), data = video_grid, alpha = .1, color = "blue", size = 3) +
+    labs(title = "Relationship between Video and Feelings Toward Trump",
+       x = "Importance of the Video",
+       y = "Warm Feelings toward Trump (Fitted)"
+       )
+```
+
+## Statistical Signficance
+```{r}
+kable(tidy(video_mod))
+kable(glance(video_mod))
+```
+
+There appears to be a strongly significant relationship between response to the video and attitudes towards Trump.
+This model has a p-value of 0.
+Importance of to the video explains approximately 48% of the variation in attitudes towards Trump.
+
+# 2. Prediction
+##
+```{r}
+trump_results <- function(splits, i) {
+  trump_model <- glm(i, data = analysis(splits))
+  trump_holdout <- assessment(splits)
+    res <- augment(trump_model, newdata = trump_holdout) %>%
+    mutate(.resid = trump - .fitted)
+    res
+}
+
+trump_cv10  <- vfold_cv(data = trump_data, v = 10) %>%
+  mutate(demographic = map(splits, trump_results, trump ~ female + age + educ),
+         party = map(splits, trump_results, trump ~ pid),
+         full = map(splits, trump_results, trump ~ video + female + pid + age + educ))  %>% 
+  gather() %>% 
+  unnest(statistic) %>% 
+  group_by(model) %>% 
+  summarise("Mean Square Estimate (MSE)" = mean(.resid^2, na.rm = TRUE)) 
+
+kable(trump_cv10)
+```
+
+Of the above models used, the one with the lowest MSE is the full model. 
+This suggests the full model (which includes party ID, attitudes towards the video, age, education, sex), as compared with models that only take into account demographic characteristics (age, education, gender) or only party ID, best predicts warmth towards Trump. 
