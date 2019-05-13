@@ -33,7 +33,8 @@ trump_data <- read_csv(here ("data", "trump.csv"))
 
 Data comes from [the 2012 American National Election Studies survey](http://www.electionstudies.org/).
 
-# 1. Basic Linear Regression
+1. Basic Linear Regression
+------
 
 ## Fitted Values
 ```{r}
@@ -70,8 +71,8 @@ There appears to be a strongly significant relationship between response to the 
 This model has a p-value of 0.
 Importance of to the video explains approximately 48% of the variation in attitudes towards Trump.
 
-# 2. Prediction
-##
+2. Prediction
+------
 ```{r}
 trump_results <- function(splits, i) {
   trump_model <- glm(i, data = analysis(splits))

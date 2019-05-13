@@ -4,7 +4,7 @@ Jess Robinson
 May 13, 2019
 
 1. Load Data
-============
+------------
 
 |  PassengerId|  Survived|  Pclass| Name                                                | Sex    |  Age|  SibSp|  Parch| Ticket           |     Fare| Cabin | Embarked | as.factor(Survived) |
 |------------:|---------:|-------:|:----------------------------------------------------|:-------|----:|------:|------:|:-----------------|--------:|:------|:---------|:--------------------|
@@ -16,7 +16,7 @@ May 13, 2019
 |            6|         0|       3| Moran, Mr. James                                    | male   |   NA|      0|      0| 330877           |   8.4583|       | Q        | 0                   |
 
 2. Logistic Regression Models
-=============================
+-----------------------------
 
 Predictions
 -----------
@@ -116,8 +116,8 @@ Predictions
 
 Of the above models, Age + Sex + Fare has the lowest MSE, suggesting it is the best predictive model of the three.
 
-3. Random Forest Model
-======================
+\#3. Random Forest Model
+------------------------
 
     ## Random Forest 
     ## 

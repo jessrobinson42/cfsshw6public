@@ -25,7 +25,9 @@ set.seed(1234)
 theme_set(theme_minimal())
 ```
 
-# 1. Load Data
+1. Load Data
+------
+
 ```{r}
 library(titanic)
 titanic <- as_tibble(titanic_train) %>%
@@ -34,7 +36,8 @@ titanic <- as_tibble(titanic_train) %>%
 kable(head(titanic)) 
 ```
 
-# 2. Logistic Regression Models
+2. Logistic Regression Models
+------
 ## Predictions
 
 *Age + Sex + Fare Model* 
@@ -84,6 +87,7 @@ kable(titanic_cv10)
 Of the above models, Age + Sex + Fare has the lowest MSE, suggesting it is the best predictive model of the three.
 
 #3. Random Forest Model
+------
 ```{r}
 titanic_clean <- titanic %>%
   drop_na() %>%

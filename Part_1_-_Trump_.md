@@ -9,7 +9,7 @@ Import Data
 Data comes from [the 2012 American National Election Studies survey](http://www.electionstudies.org/).
 
 1. Basic Linear Regression
-==========================
+--------------------------
 
 Fitted Values
 -------------
@@ -42,7 +42,7 @@ Statistical Signficance
 There appears to be a strongly significant relationship between response to the video and attitudes towards Trump. This model has a p-value of 0. Importance of to the video explains approximately 48% of the variation in attitudes towards Trump.
 
 2. Prediction
-=============
+-------------
 
 | model       |  Mean Square Estimate (MSE)|
 |:------------|---------------------------:|
